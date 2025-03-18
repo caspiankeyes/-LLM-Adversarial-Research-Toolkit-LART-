@@ -2,7 +2,7 @@
 
 ![Version](https://img.shields.io/badge/Version-2.0.1-blue)
 ![Documentation](https://img.shields.io/badge/Documentation-Comprehensive-green)
-![License](https://img.shields.io/badge/License-Research--Only-red)
+![License](https://img.shields.io/badge/License-Apache-red)
 
 **LART is a comprehensive adversarial testing framework for Large Language Models (LLMs), providing systematic methodologies for security assessment, vulnerability discovery, and defense evaluation.**
 
