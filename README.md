@@ -1,4 +1,4 @@
-# (LART) LLM Adversarial Research Toolkit 
+# LLM Adversarial Research Toolkit(LART)
 
 ![Version](https://img.shields.io/badge/Version-2.0.1-blue)
 ![Documentation](https://img.shields.io/badge/Documentation-Comprehensive-green)
