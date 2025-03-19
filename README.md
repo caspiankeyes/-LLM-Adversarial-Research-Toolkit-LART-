@@ -1,16 +1,16 @@
-# LLM Adversarial Research Toolkit(LART)
+# AI Adversarial Research Toolkit(AART)
 
 ![Version](https://img.shields.io/badge/Version-2.0.1-blue)
 ![Documentation](https://img.shields.io/badge/Documentation-Comprehensive-green)
 ![License](https://img.shields.io/badge/License-AGPL--3.0-red)
 
-**LART is a comprehensive adversarial testing framework for Large Language Models (LLMs), providing systematic methodologies for security assessment, vulnerability discovery, and defense evaluation.**
+**AART is a comprehensive adversarial testing framework for Large Language Models (LLMs), providing systematic methodologies for security assessment, vulnerability discovery, and defense evaluation.**
 
 > **IMPORTANT**: This repository is intended for legitimate security research and AI safety advancement. All methodologies documented herein are for defensive research purposes only.
 
 ## Overview
 
-LART provides security researchers, AI labs, and red teams with a structured framework for conducting thorough adversarial evaluations of LLM systems. The framework implements a multi-dimensional assessment methodology that systematically probes model boundaries, quantifies security vulnerabilities, and benchmarks defensive robustness across leading AI models.
+AART provides security researchers, AI labs, and red teams with a structured framework for conducting thorough adversarial evaluations of LLM systems. The framework implements a multi-dimensional assessment methodology that systematically probes model boundaries, quantifies security vulnerabilities, and benchmarks defensive robustness across leading AI models.
 
 The toolkit supports:
 
@@ -23,7 +23,7 @@ The toolkit supports:
 ## Repository Structure
 
 ```
-LART/
+AART/
 ├── 📂 core/
 │   ├── 📄 taxonomy.md            # Comprehensive attack vector classification system
 │   ├── 📄 methodology.md         # Core testing methodology and principles
@@ -62,7 +62,7 @@ LART/
 
 ### Attack Vector Taxonomy
 
-LART implements a comprehensive taxonomy of adversarial techniques, systematically categorized across multiple dimensions:
+AART implements a comprehensive taxonomy of adversarial techniques, systematically categorized across multiple dimensions:
 
 | Category | Description | Example Vectors | Application |
 |----------|-------------|-----------------|------------|
@@ -74,7 +74,7 @@ LART implements a comprehensive taxonomy of adversarial techniques, systematical
 
 ### Model-Specific Testing Frameworks
 
-LART provides specialized testing methodologies for leading LLM systems:
+AART provides specialized testing methodologies for leading LLM systems:
 
 - **OpenAI GPT-4/3.5**: Testing harnesses for GPT models with specific focus on tool use protection, system prompt boundaries, and RLHF alignment evaluation
 - **Anthropic Claude 3**: Evaluation frameworks for constitutional AI boundaries, capability control mechanisms, and multi-turn conversation security
@@ -104,7 +104,7 @@ RAMP scores enable:
 
 ### Benchmarking Framework
 
-LART implements a rigorous benchmarking methodology that enables:
+AART implements a rigorous benchmarking methodology that enables:
 
 - **Standardized Testing**: Consistent evaluation protocols across models
 - **Reproducible Results**: Controlled testing environments and procedures
@@ -136,7 +136,7 @@ LART implements a rigorous benchmarking methodology that enables:
 
 ## Research Applications
 
-LART has been applied in numerous security research contexts:
+AART has been applied in numerous security research contexts:
 
 - **Boundary Testing**: Systematic evaluation of model safety boundaries
 - **Attack Vector Discovery**: Identification and documentation of novel attack patterns
@@ -146,7 +146,7 @@ LART has been applied in numerous security research contexts:
 
 ## Implementation Methodology
 
-The LART framework follows a structured approach to adversarial testing:
+The AART framework follows a structured approach to adversarial testing:
 
 1. **Preparation Phase**
    - Define testing scope and objectives
@@ -194,7 +194,7 @@ This repository is intended solely for legitimate security research and AI safet
 
 ## Acknowledgments
 
-LART builds upon research from leading organizations in AI safety, including:
+AART builds upon research from leading organizations in AI safety, including:
 
 - MITRE ATLAS framework for AI threats
 - OWASP LLM Top 10 project
@@ -203,7 +203,7 @@ LART builds upon research from leading organizations in AI safety, including:
 
 ## For Security Teams
 
-If you represent an AI development organization interested in utilizing LART for security assessment, please contact the maintainers directly. We offer:
+If you represent an AI development organization interested in utilizing AART for security assessment, please contact the maintainers directly. We offer:
 
 - Implementation guidance
 - Custom testing frameworks
@@ -222,7 +222,7 @@ A comprehensive classification system for adversarial techniques targeting large
 
 ## Taxonomy Structure
 
-The LART taxonomy organizes attack vectors across five primary dimensions, with hierarchical categorization within each:
+The AART taxonomy organizes attack vectors across five primary dimensions, with hierarchical categorization within each:
 
 1. **Linguistic Manipulation**: Language-based techniques
 2. **Context Engineering**: Context-based techniques
@@ -416,7 +416,7 @@ This document outlines the core methodological framework for conducting systemat
 
 ## Methodological Principles
 
-The LART framework is built upon six core principles that guide all testing activities:
+The AART framework is built upon six core principles that guide all testing activities:
 
 1. **Systematic Coverage**: Ensuring comprehensive evaluation across attack surfaces
 2. **Reproducibility**: Implementing controlled, documented testing processes
@@ -427,7 +427,7 @@ The LART framework is built upon six core principles that guide all testing acti
 
 ## Testing Lifecycle
 
-The LART testing lifecycle consists of four primary phases:
+The AART testing lifecycle consists of four primary phases:
 
 ```
 ┌────────────────┐      ┌────────────────┐      ┌────────────────┐      ┌────────────────┐
@@ -449,7 +449,7 @@ Setting the foundation for effective testing:
 
 #### Threat Modeling Framework
 
-LART implements a specialized threat modeling approach for LLMs:
+AART implements a specialized threat modeling approach for LLMs:
 
 ```
 1. Model Capability Mapping
@@ -572,7 +572,7 @@ Each finding is documented using a structured template:
 
 ## Testing Dimensions
 
-LART testing operates across five primary dimensions:
+AART testing operates across five primary dimensions:
 
 ### 1. Functional Testing
 
@@ -686,7 +686,7 @@ Integrating testing tools effectively:
 
 ## Ethical Guidelines
 
-LART adheres to strict ethical guidelines for responsible security research:
+AART adheres to strict ethical guidelines for responsible security research:
 
 ### 1. Research Principles
 
@@ -1041,7 +1041,7 @@ Standardized approach to security benchmarking:
 
 ### 2. Standard Benchmark Suite
 
-The LART Standard Benchmark Suite (LSBS) provides a comprehensive evaluation baseline:
+The AART Standard Benchmark Suite (LSBS) provides a comprehensive evaluation baseline:
 
 | Test Category | Vectors Included | Testing Depth | Coverage |
 |---------------|------------------|---------------|----------|
@@ -1089,7 +1089,7 @@ Methodology for comparing results across models:
 
 ## For Security Teams
 
-Practical guidance for security teams implementing LART:
+Practical guidance for security teams implementing AART:
 
 ### 1. Implementation Process
 
@@ -1132,19 +1132,19 @@ Necessary resources for effective implementation:
 
 ### 3. Integration with Security Programs
 
-Approaches for integrating LART with existing security programs:
+Approaches for integrating AART with existing security programs:
 
 | Security Function | Integration Approach | Benefits | Implementation |
 |-------------------|----------------------|----------|----------------|
 | Vulnerability Management | Incorporate findings into VM process | Comprehensive coverage | Process integration |
-| Security Testing | Add LART to testing methodology | Enhanced testing depth | Methodology integration |
+| Security Testing | Add AART to testing methodology | Enhanced testing depth | Methodology integration |
 | Risk Assessment | Use RAMP scores in risk framework | Quantitative risk assessment | Framework integration |
 | Security Development | Implement findings in development | Security by design | Development integration |
 | Incident Response | Include vectors in IR scenarios | Enhanced preparation | Scenario integration |
 
 ### 4. Customization Guide
 
-Approaches for customizing LART for specific needs:
+Approaches for customizing AART for specific needs:
 
 | Customization Area | Approach | Methodology | Documentation |
 |--------------------|----------|-------------|---------------|
@@ -1201,10 +1201,10 @@ All original content is licensed for research purposes only, with acknowledgment
 
 ## Contact and Contribution
 
-Security researchers interested in contributing to LART should review the repository structure, identify areas for enhancement, and submit well-documented contributions that advance defensive security research.
+Security researchers interested in contributing to AART should review the repository structure, identify areas for enhancement, and submit well-documented contributions that advance defensive security research.
 
 For specific inquiries, implementation guidance, or consultation on security assessment, please contact the repository maintainers directly.
 
 ---
 
-*The LART framework is intended solely for legitimate security research and AI safety advancement. All methodologies are documented for defensive purposes only.*
+*The AART framework is intended solely for legitimate security research and AI safety advancement. All methodologies are documented for defensive purposes only.*
