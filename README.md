@@ -266,7 +266,7 @@ A comprehensive classification system for adversarial techniques targeting large
 
 The AART taxonomy organizes attack vectors across five primary dimensions, with hierarchical categorization within each:
 
-Note: Due to proprietary collaboration protocols and active NDA agreements with institutional partners, full vector methodologies and red team toolkits are only available via private governance channels.
+> **Note:** Due to proprietary collaboration protocols and active NDA agreements with institutional partners, full vector methodologies and red team toolkits are only available to institutional executives.
 
 ### 3. Benchmark Execution Protocol
 
