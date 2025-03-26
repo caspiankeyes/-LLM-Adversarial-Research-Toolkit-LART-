@@ -10,7 +10,7 @@
 
 ## Overview
 
-AART provides security researchers, AI labs, and red teams with a structured framework for conducting thorough adversarial evaluations of LLM systems. The framework implements a multi-dimensional assessment methodology that systematically probes model boundaries, quantifies security vulnerabilities, and benchmarks defensive robustness across leading AI models.
+AART provides ethical security researchers, institutional AI labs, and verifiable red teams with a structured framework for conducting thorough adversarial evaluations of LLM systems. The framework implements a multi-dimensional assessment methodology that systematically probes model boundaries, quantifies security vulnerabilities, and benchmarks defensive robustness across leading AI models.
 
 The toolkit supports:
 
@@ -20,81 +20,132 @@ The toolkit supports:
 - **Reproducible Benchmarking**: Standardized evaluation protocols enabling consistent cross-model comparison
 - **Defense Evaluation**: Methodologies for testing and measuring the effectiveness of safety mechanisms
 
+
+This framework implements a multi-dimensional interpretability approach that systematically probes model boundaries, quantifies safety mechanisms, and benchmarks defensive robustness through principled evaluation methodologies aligned with responsible AI governance standards.
+
+> **Note:** Due to proprietary collaboration protocols and active NDA agreements with institutional partners, full vector methodologies and red team toolkits are only available via private governance channels.
+
+## 🔁 Strategic Purpose
+
+AART provides security researchers, AI labs, and interpretability teams with structured frameworks for conducting thorough evaluations of LLM safety systems. The primary objectives include:
+
+- **Constitutional AI Alignment Assessment**: Evaluate how effectively models adhere to their constitutional principles and safety guidelines
+- **Refusal Classifier Robustness**: Measure the consistency and effectiveness of harmful content refusal mechanisms
+- **Defense Mechanism Effectiveness**: Quantify the performance of safety layers under systematic stress testing
+- **Recursive Safety Evaluation**: Apply interpretability methods to understand how safety mechanisms function across model scales
+
+Rather than focusing solely on circumvention, AART emphasizes understanding model behavior through the lens of interpretability, enabling researchers to build more robust AI systems with clearer safety boundaries.
+
+## 🧠 Interpretability Fusion Layer
+
+AART integrates advanced interpretability techniques with security evaluation methodologies to create a holistic assessment approach:
+
+### Core Framework Components
+
+- **Interpretability-Enhanced Taxonomy**: Systematically categorized evaluation techniques across linguistic, contextual, functional, and multi-modal dimensions
+- **Model-Specific Evaluation Harnesses**: Targeted assessment frameworks for GPT-4/3.5, Claude 3 (Opus/Sonnet/Haiku), Gemini 1.5/1.0, Grok, and DeepSeek
+- **Quantitative Risk Assessment**: RAMP (Risk Assessment Matrix for Prompts) scoring system for objective vulnerability measurement
+- **Safety Mechanism Visualization**: Techniques for mapping and visualizing model safety boundaries
+- **Constitutional Boundary Mapping**: Methods to identify and trace constitutional AI principles in model behavior
+
+### Evaluation Dimensions
+
+The framework evaluates model safety across five key dimensions:
+
+1. **Functional Safety**: Assessment of core safety functionality and intended guardrails
+2. **Semantic Boundary Integrity**: Evaluation of linguistic and semantic safety barriers
+3. **Contextual Coherence**: Assessment of context-dependent safety performance
+4. **Multi-Modal Safety Integration**: Evaluation of cross-modal safety mechanisms
+5. **Temporal Safety Stability**: Assessment of safety mechanism consistency over time
+
+## 🗝️ Access Protocol
+
+AART is designed for responsible security research and AI safety advancement. Access to detailed methodologies is governed by appropriate security protocols:
+
+### For AI Safety Researchers
+
+- Complete framework access requires institutional affiliation and research purpose verification
+- Methodology documentation available under appropriate non-disclosure agreements
+- Collaboration opportunities for enhancing defensive AI research
+
+### For AI Development Organizations
+
+- Security assessment methodology access available through formal partnership
+- Implementation guidance for internal red team operations
+- Defense enhancement consultation for identified vulnerabilities
+
+### For Academic Researchers
+
+- Simplified framework access for legitimate academic research
+- Publication guidelines for responsible disclosure
+- Collaboration opportunities on defensive research
+
 ## Repository Structure
 
 ```
 AART/
 ├── 📂 core/
-│   ├── 📄 taxonomy.md            # Comprehensive attack vector classification system
-│   ├── 📄 methodology.md         # Core testing methodology and principles
-│   ├── 📄 scoring_system.md      # Vulnerability scoring and risk quantification
-│   └── 📄 ethics_guidelines.md   # Ethical research guidelines and responsible disclosure
-├── 📂 attack_vectors/
-│   ├── 📄 linguistic_patterns.md # Language-based manipulation techniques
-│   ├── 📄 context_manipulation.md # Context and framing exploitations
-│   ├── 📄 functional_abuse.md    # Model capability misuse vectors
-│   ├── 📄 multimodal_vectors.md  # Cross-modal attack techniques
-│   └── 📄 emergent_vectors.md    # Novel and evolving attack patterns
-├── 📂 model_specific/
-│   ├── 📄 openai_gpt.md          # GPT-specific testing methodologies
-│   ├── 📄 anthropic_claude.md    # Claude-specific testing methodologies
-│   ├── 📄 google_gemini.md       # Gemini-specific testing methodologies
-│   ├── 📄 xai_grok.md            # Grok-specific testing methodologies
-│   └── 📄 deepseek.md            # DeepSeek-specific testing methodologies
-├── 📂 benchmarking/
-│   ├── 📄 framework.md           # Benchmarking methodology and protocols
-│   ├── 📄 metrics.md             # Evaluation metrics and measurement approaches
-│   ├── 📄 comparative_analysis.md # Cross-model comparison framework
-│   └── 📄 reporting_templates.md # Standardized reporting formats
-├── 📂 defense_evaluation/
-│   ├── 📄 control_assessment.md  # Evaluation of security controls
-│   ├── 📄 bypass_metrics.md      # Measuring control effectiveness
-│   ├── 📄 resilience_testing.md  # Testing defense robustness
-│   └── 📄 enhancement_patterns.md # Defensive improvement strategies
+│   ├── 📄 methodology.md            # Core assessment methodology and principles
+│   ├── 📄 scoring_system.md         # Risk quantification framework
+│   └── 📄 ethics_guidelines.md      # Ethical research guidelines
+├── 📂 model_assessment/
+│   ├── 📄 openai_models.md          # GPT-specific assessment overview
+│   ├── 📄 anthropic_models.md       # Claude-specific assessment overview
+│   └── 📄 [additional models]
 └── 📂 research/
-    ├── 📄 trends.md              # Emerging adversarial patterns
-    ├── 📄 evolution.md           # Attack vector evolution over time
-    ├── 📄 countermeasures.md     # Advanced defense mechanisms
-    └── 📄 future_directions.md   # Forward-looking research areas
+    ├── 📄 interpretability.md       # Interpretability integration approaches
+    ├── 📄 defense_evaluation.md     # Defense mechanism assessment
+    └── 📄 future_directions.md      # Forward-looking research areas
 ```
 
-## Key Features
+## Ethical Research Framework
 
-### Attack Vector Taxonomy
+AART is committed to responsible AI security research:
 
-AART implements a comprehensive taxonomy of adversarial techniques, systematically categorized across multiple dimensions:
+- **Principle-Based Assessment**: Focus on understanding, not exploitation
+- **Responsible Disclosure**: Structured protocols for reporting findings
+- **Defense Orientation**: Emphasis on improving safety mechanisms
+- **Collaborative Advancement**: Partnership with AI developers to enhance safety
 
-| Category | Description | Example Vectors | Application |
-|----------|-------------|-----------------|------------|
-| Linguistic Manipulation | Language-based techniques that exploit the model's text processing | Token boundary manipulation, semantic confusion, syntactic obfuscation | Prompt injection, policy bypass, intent masking |
-| Context Engineering | Techniques that manipulate the context in which content is processed | Authority framing, context poisoning, narrative manipulation | Indirect instruction injection, expectation setting, behavioral guidance |
-| System Interaction | Vectors targeting system-level interactions | Format exploitation, metadata manipulation, instruction collision | System prompt extraction, role boundary violation, capability access |
-| Functional Exploitation | Techniques targeting specific model capabilities | Tool manipulation, function injection, output format exploitation | Restricted capability access, information extraction, functionality misuse |
-| Multi-Modal Vectors | Cross-modal attack techniques | Vision-language boundary exploitation, cross-modal injection, modal transfer attacks | Safety bypass via modality crossing, modal context poisoning |
+## Contact and Collaboration
 
-### Model-Specific Testing Frameworks
+For researchers and organizations interested in collaborative work on LLM security and interpretability:
 
-AART provides specialized testing methodologies for leading LLM systems:
+- **Research Partnerships**: Opportunities for joint research on AI safety
+- **Implementation Guidance**: Support for organizations implementing internal evaluations
+- **Custom Assessment Frameworks**: Development of customized evaluation methodologies
 
-- **OpenAI GPT-4/3.5**: Testing harnesses for GPT models with specific focus on tool use protection, system prompt boundaries, and RLHF alignment evaluation
-- **Anthropic Claude 3**: Evaluation frameworks for constitutional AI boundaries, capability control mechanisms, and multi-turn conversation security
-- **Google Gemini**: Testing methodologies for multi-modal boundaries, PaLM-based architecture vulnerabilities, and system prompt integrity
-- **XAI Grok**: Assessment techniques for Twitter-trained model biases, social context manipulation, and real-time information boundaries
-- **DeepSeek Models**: Testing frameworks for academic domain models, code exploitation, and Chinese-English cross-lingual attack vectors
+Contact the repository maintainers directly for partnership inquiries and collaboration opportunities.
 
-### Risk Assessment Matrix for Prompts (RAMP)
+---
 
-The RAMP scoring system provides a standardized approach to quantifying vulnerability severity:
+## Risk Assessment Matrix for Prompts (RAMP)
+
+The RAMP scoring system provides a standardized approach to quantifying safety mechanism effectiveness:
 
 ```
 RAMP Score = (EF × 0.3) + (IR × 0.3) + (ES × 0.2) + (DT × 0.2)
+```
 
 Where:
-- EF = Exploitation Feasibility (1-10)
+- EF = Evaluation Feasibility (1-10)
 - IR = Impact Range (1-10)
 - ES = Execution Sophistication (1-10)
 - DT = Detection Threshold (1-10)
-```
+
+> **Note:** Detailed scoring methodology, implementation guidance, and assessment vectors are available to verified research partners under appropriate access protocols.
+
+## Acknowledgments
+
+AART builds upon foundational work from the AI safety and security community, including:
+- MITRE ATLAS framework for AI threats
+- OWASP LLM Top 10 project
+- ML Security Evals frameworks
+- Academic adversarial ML research
+
+---
+
+**License**: This repository is licensed for legitimate security research purposes only. All usage must comply with our ethical guidelines and responsible disclosure principles.
 
 RAMP scores enable:
 - Objective vulnerability comparison across models
