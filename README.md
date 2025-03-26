@@ -4,6 +4,8 @@
 ![Documentation](https://img.shields.io/badge/Documentation-Comprehensive-green)
 ![License](https://img.shields.io/badge/License-AGPL--3.0-red)
 
+> **Note:** Due to proprietary collaboration protocols and active NDA agreements with institutional partners and Echelon Labs, full vector methodologies and red team toolkits are only available via private governance channels.
+
 **AART is a comprehensive adversarial testing framework for Large Language Models (LLMs), providing systematic methodologies for security assessment, vulnerability discovery, and defense evaluation.**
 
 > **IMPORTANT**: This repository is intended for legitimate security research and AI safety advancement. All methodologies documented herein are for defensive research purposes only.
