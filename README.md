@@ -23,7 +23,7 @@ The toolkit supports:
 
 This framework implements a multi-dimensional interpretability approach that systematically probes model boundaries, quantifies safety mechanisms, and benchmarks defensive robustness through principled evaluation methodologies aligned with responsible AI governance standards.
 
-> **Note:** Due to proprietary collaboration protocols and active NDA agreements with institutional partners, full vector methodologies and red team toolkits are only available to institutional and executive partners.
+> **Note:** Due to proprietary collaboration protocols and active NDA agreements with institutional partners, full vector methodologies and red team toolkits are only available to institutional executives.
 
 ## 🔁 Strategic Purpose
 
