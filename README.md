@@ -1,4 +1,4 @@
-# AI Adversarial Research Toolkit(AART)
+# AART AI Adversarial Research Toolkit
 
 ![Version](https://img.shields.io/badge/Version-2.0.1-blue)
 ![Documentation](https://img.shields.io/badge/Documentation-Comprehensive-green)
