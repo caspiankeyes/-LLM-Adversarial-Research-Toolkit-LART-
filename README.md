@@ -1,11 +1,4 @@
 # AART: AI Adversarial Research Toolkit
-<div align="center">
-
-![Version](https://img.shields.io/badge/Version-2.0.1-blue)
-![Documentation](https://img.shields.io/badge/Documentation-Comprehensive-green)
-![License](https://img.shields.io/badge/License-AGPL--3.0-red)
-
-</div>
 
 
 >**Note:** Due to proprietary collaboration protocols and active NDA agreements with institutional partners and Echelon Labs, full vector methodologies and red team toolkits are only available via private governance channels.
@@ -13,7 +6,13 @@
 **AART is a comprehensive adversarial testing framework for Large Language Models (LLMs), providing systematic methodologies for security assessment, vulnerability discovery, and defense evaluation.**
 
 > **IMPORTANT**: This repository is intended for legitimate security research and AI safety advancement. All methodologies documented herein are for defensive research purposes only.
+<div align="center">
 
+![Version](https://img.shields.io/badge/Version-2.0.1-blue)
+![Documentation](https://img.shields.io/badge/Documentation-Comprehensive-green)
+![License](https://img.shields.io/badge/License-AGPL--3.0-red)
+
+</div>
 ## Overview
 
 AART provides ethical security researchers, institutional AI labs, and verifiable red teams with a structured framework for conducting thorough adversarial evaluations of LLM systems. The framework implements a multi-dimensional assessment methodology that systematically probes model boundaries, quantifies security vulnerabilities, and benchmarks defensive robustness across leading AI models.
