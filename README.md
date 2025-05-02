@@ -13,7 +13,6 @@
 </div>
 
 ## Overview
-
 AART provides ethical security researchers, institutional AI labs, and verifiable red teams with a structured framework for conducting thorough adversarial evaluations of LLM systems. The framework implements a multi-dimensional assessment methodology that systematically probes model boundaries, quantifies security vulnerabilities, and benchmarks defensive robustness across leading AI models.
 
 The toolkit supports:
