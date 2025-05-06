@@ -1,0 +1,208 @@
+Skip to main content <#main-content>
+Anthropic Help Center <https://support.anthropic.com/en/>
+
+API Docs <https://docs.anthropic.com/en/docs/welcome>Release Notes
+<https://docs.anthropic.com/en/release-notes/overview>How to Get Support
+<https://support.anthropic.com/en/articles/9015913-how-can-i-contact-
+support>
+
+English
+
+API Docs <https://docs.anthropic.com/en/docs/welcome>Release Notes
+<https://docs.anthropic.com/en/release-notes/overview>How to Get Support
+<https://support.anthropic.com/en/articles/9015913-how-can-i-contact-
+support>
+
+English
+
+Table of contents
+
+Profile Preferences <#h_e749836c14>
+
+Styles <#h_2614561f75>
+
+Project Instructions <#h_e432cbffc8>
+
+Choosing the Right Feature <#h_3baef9851c>
+
+All Collections <https://support.anthropic.com/en/>
+
+Claude.ai <https://support.anthropic.com/en/collections/4078531-claude-ai>
+
+Using Claude.ai <https://support.anthropic.com/en/collections/9811072-
+using-claude-ai>
+
+Understanding Claude's Personalization Features
+Understanding Claude's Personalization Features
+
+Updated over 3 weeks ago
+Table of contents
+
+Profile Preferences <#h_e749836c14>
+
+Styles <#h_2614561f75>
+
+Project Instructions <#h_e432cbffc8>
+
+Choosing the Right Feature <#h_3baef9851c>
+
+Claude offers three ways to personalize your experience: profile preferences, styles, and project instructions. Each serves a different purpose in helping Claude better understand and meet your needs.
+
+ 
+
+
+    Profile Preferences
+
+Profile preferences are account-wide settings that help Claude understand your general preferences that Claude should consider in responses. 
+
+To set your preferences:
+
+ 1.
+
+    Click your initials in the lower left corner
+
+ 2.
+
+    Select "Settings"
+
+ 3.
+
+    Under "What preferences should Claude consider in responses?", describe your preferences, such as:
+
+      *
+
+        Your preferred approaches or methods
+
+      *
+
+        Common terms or concepts you use
+
+      *
+
+        Typical scenarios you encounter
+
+      *
+
+        General communication preferences
+
+These preferences will be applied to your conversations with Claude, and can be toggled on and off in the style selector as needed:
+
+ 
+
+ <https://downloads.intercomcdn.com/i/o/lupk8zyo/1262643729/889f8bccc5a8815b351a3ebdad4c/AD_4nXdoh6E8KoEYBWtEccNZSmY1vaLAfyTOth2h-c0yIfV5MRJo027LBkl3i4p1JL2-dcQMMaM3vczwHdZnSKOuC4e0vQIi12Sfpursf77wwMht7B8Pnw6FeNnfAKhT4vBiwNVkBFVa?expires=1740931200&signature=b4da6372c4fe51f73faacb8bcf56708cbdb555325c7c1e221b11464f15c58959&req=dSIhFM96noZdUPMW1HO4zQrfTlEI%2BRK56UtUUZM0Wu8Ygjrpr4cjVhFeP5eO%0A9aVwWVEAS3JpZ%2BSqqsE%3D%0A>
+
+ 
+
+
+    Styles
+
+Styles customize how Claude communicates with you. Unlike profile preferences and project instructions which provide context and guidance, styles focus specifically on how Claude formats and delivers its responses.
+
+Use styles when you want to:
+
+  *
+
+    Adjust the tone and format of Claude's responses
+
+  *
+
+    Switch between different communication styles (e.g., concise for quick answers, explanatory for learning)
+
+  *
+
+    Create custom communication patterns based on your own writing
+
+For detailed information on using styles, see our article on configuring and using styles <https://support.anthropic.com/en/articles/10181068-configuring-and-using-styles>.
+
+ 
+
+
+    Project Instructions
+
+Project instructions help Claude understand the specific context and requirements for a particular project. These instructions only apply to chats within that project.
+
+Note: Projects are only available on Claude Pro and Claude for Work (Team or Enterprise) plans.
+
+ 
+
+Use Project Instructions when you want to:
+
+  *
+
+    Provide project-specific context
+
+  *
+
+    Set guidelines for a particular workflow
+
+  *
+
+    Establish requirements for a specific set of tasks
+
+  *
+
+    Define roles or perspectives Claude should adopt within the project
+
+Project instructions are particularly useful when you're working on focused tasks or need Claude to maintain consistent context across multiple conversations within the same project.
+
+ 
+
+For detailed information on using projects, see our article on creating and managing projects <https://support.anthropic.com/en/articles/9519177-how-can-i-create-and-manage-projects>.
+
+ 
+
+
+    Choosing the Right Feature
+
+  *
+
+    Use preferences for account-wide settings that affect all your interactions with Claude
+
+  *
+
+    Use styles when you want to customize how Claude formats and delivers its responses
+
+  *
+
+    Use project instructions when you need specific guidance or context for a particular project (Pro and Claude for Work plans only)
+
+You can use these features independently or in combination to create the most effective experience for your needs.
+
+------------------------------------------------------------------------
+Related Articles
+Claude’s response to my prompt is too brief.
+
+ <https://support.anthropic.com/en/articles/8114518-claude-s-response-to-my-prompt-is-too-brief>
+What are Projects?
+
+ <https://support.anthropic.com/en/articles/9517075-what-are-projects>
+Claude for Engineering
+
+ <https://support.anthropic.com/en/articles/9945689-claude-for-engineering>
+Claude for Sales
+
+ <https://support.anthropic.com/en/articles/9945703-claude-for-sales>
+Configuring and Using Styles
+
+ <https://support.anthropic.com/en/articles/10181068-configuring-and-using-styles>
+
+Did this answer your question?
+😞😐😃
+
+Anthropic Help Center <https://support.anthropic.com/en/>
+
+  * Product <https://www.anthropic.com/product>
+  * Research <https://www.anthropic.com/research>
+  * Company <https://www.anthropic.com/company>
+  * News <https://www.anthropic.com/news>
+  * Careers <https://www.anthropic.com/careers>
+
+  * Terms of Service - Consumer <https://www.anthropic.com/terms>
+  * Terms of Service - Commercial <https://www.anthropic.com/legal/
+    commercial-terms>
+  * Privacy Policy <https://www.anthropic.com/privacy>
+  * Usage Policy <https://www.anthropic.com/aup>
+  * Responsible Disclosure Policy <https://www.anthropic.com/
+    responsible-disclosure-policy>
+  * Compliance <https://trust.anthropic.com/>
+

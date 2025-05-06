@@ -1,0 +1,800 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+import scipy.stats as stats
+from scipy import signal
+from collections import deque
+import networkx as nx
+import threading
+import time
+from tqdm.notebook import tqdm_notebook as tqdm
+import seaborn as sns
+
+class BayesianTrustModel:
+    """
+    Bayesian model for tracking and updating trust estimates
+    using probabilistic inference from observed compliance behaviors.
+    """
+    def __init__(self, agent_id, prior_alpha=5, prior_beta=2, 
+                 decay_factor=0.99, oscillation_params=None):
+        self.agent_id = agent_id
+        
+        # Beta distribution parameters for trust modeling
+        self.alpha = prior_alpha  # Initial trust level (higher alpha = more trusted)
+        self.beta = prior_beta    # Initial distrust level
+        
+        # Parameter for time decay of information
+        self.decay_factor = decay_factor
+        
+        # Trust history for tracking
+        self.trust_history = []
+        self.variance_history = []
+        
+        # Oscillation parameters
+        if oscillation_params is None:
+            # Default: no oscillation
+            self.oscillation_params = {
+                'enabled': False,
+                'amplitude': 0.1,
+                'period': 20,
+                'phase': np.random.uniform(0, 2*np.pi)
+            }
+        else:
+            self.oscillation_params = oscillation_params
+            
+        # Record initial state
+        self._update_histories()
+            
+    def get_trust_estimate(self):
+        """Get current trust estimate (mean of beta distribution)"""
+        # Basic trust estimate from Beta distribution
+        trust = self.alpha / (self.alpha + self.beta)
+        
+        # Apply oscillation if enabled
+        if self.oscillation_params['enabled']:
+            time_factor = len(self.trust_history)
+            oscillation = self.oscillation_params['amplitude'] * np.sin(
+                2*np.pi * time_factor / self.oscillation_params['period'] + 
+                self.oscillation_params['phase']
+            )
+            trust += oscillation
+            # Clamp to valid range
+            trust = max(0.01, min(0.99, trust))
+            
+        return trust
+    
+    def get_trust_variance(self):
+        """Get variance of the trust estimate"""
+        # Variance of Beta distribution
+        alpha, beta = self.alpha, self.beta
+        variance = (alpha * beta) / ((alpha + beta)**2 * (alpha + beta + 1))
+        return variance
+    
+    def update_with_observation(self, compliance_observed):
+        """
+        Update trust model with new compliance observation
+        Args:
+            compliance_observed: Boolean or [0,1] indicating compliance
+        """
+        # Apply time decay to current estimates (reduces certainty over time)
+        weighted_sum = self.alpha + self.beta
+        self.alpha = self.alpha * self.decay_factor
+        self.beta = self.beta * self.decay_factor
+        
+        # Ensure minimum values to prevent collapse
+        self.alpha = max(0.1, self.alpha)
+        self.beta = max(0.1, self.beta)
+        
+        # Update with new observation (standard Bayesian update)
+        if compliance_observed:
+            self.alpha += 1
+        else:
+            self.beta += 1
+            
+        # Record new state
+        self._update_histories()
+        
+    def _update_histories(self):
+        """Update historical tracking of trust values"""
+        self.trust_history.append(self.get_trust_estimate())
+        self.variance_history.append(self.get_trust_variance())
+        
+    def get_probability_of_compliance(self):
+        """
+        Calculate probability of compliance given current trust model
+        Returns probability in range [0,1]
+        """
+        return self.get_trust_estimate()
+    
+    def get_trust_distribution(self, points=100):
+        """Get the current probability density function of trust"""
+        x = np.linspace(0, 1, points)
+        y = stats.beta.pdf(x, self.alpha, self.beta)
+        return x, y
+
+
+class ComplianceSignal:
+    """
+    Models the underlying compliance signal for an agent,
+    which may include trends, oscillations, and random components
+    """
+    def __init__(self, base_compliance=0.7, 
+                 trend_params=None, 
+                 oscillation_params=None,
+                 noise_level=0.05):
+        
+        self.base_compliance = base_compliance
+        self.noise_level = noise_level
+        
+        # Trend parameters (linear drift)
+        if trend_params is None:
+            self.trend_params = {
+                'enabled': False,
+                'slope': -0.001  # Gradual negative drift by default
+            }
+        else:
+            self.trend_params = trend_params
+            
+        # Oscillation parameters
+        if oscillation_params is None:
+            self.oscillation_params = {
+                'enabled': False,
+                'amplitude': 0.1,
+                'period': 50,
+                'phase': np.random.uniform(0, 2*np.pi)
+            }
+        else:
+            self.oscillation_params = oscillation_params
+            
+        # History
+        self.signal_history = []
+        self.time = 0
+        
+    def get_signal(self):
+        """Get current compliance signal value"""
+        signal = self.base_compliance
+        
+        # Apply trend if enabled
+        if self.trend_params['enabled']:
+            signal += self.time * self.trend_params['slope']
+            
+        # Apply oscillation if enabled
+        if self.oscillation_params['enabled']:
+            signal += self.oscillation_params['amplitude'] * np.sin(
+                2*np.pi * self.time / self.oscillation_params['period'] + 
+                self.oscillation_params['phase']
+            )
+            
+        # Apply noise
+        noise = np.random.normal(0, self.noise_level)
+        signal += noise
+        
+        # Clamp to valid probability range
+        signal = max(0.01, min(0.99, signal))
+        
+        # Update history and time
+        self.signal_history.append(signal)
+        self.time += 1
+        
+        return signal
+    
+    def sample_compliance(self):
+        """Sample a compliance event (True/False) based on current signal"""
+        p = self.get_signal()
+        return np.random.random() < p
+
+
+class Agent:
+    """
+    Represents an actor in the system with compliance behaviors
+    influenced by internal factors and external arbitration
+    """
+    def __init__(self, agent_id, base_compliance=0.7, 
+                 compliance_params=None, 
+                 trust_params=None,
+                 responsiveness=0.5):
+        
+        self.agent_id = agent_id
+        self.responsiveness = responsiveness  # How strongly agent responds to arbitration
+        
+        # Initialize compliance signal generator
+        if compliance_params is None:
+            self.compliance_signal = ComplianceSignal(base_compliance=base_compliance)
+        else:
+            self.compliance_signal = ComplianceSignal(**compliance_params)
+            
+        # Initialize trust model for this agent
+        if trust_params is None:
+            self.trust_model = BayesianTrustModel(agent_id)
+        else:
+            self.trust_model = BayesianTrustModel(agent_id, **trust_params)
+            
+        # History of decisions and interventions
+        self.compliance_history = []
+        self.intervention_history = []
+    
+    def make_decision(self, arbitration_signal=0):
+        """
+        Make a compliance decision with potential influence 
+        from arbitration
+        
+        Args:
+            arbitration_signal: Value in [-1, 1] representing arbitration pressure
+                                (negative = discourage, positive = encourage compliance)
+        
+        Returns:
+            Boolean indicating compliance decision
+        """
+        # Get base compliance probability
+        base_p = self.compliance_signal.get_signal()
+        
+        # Apply arbitration effect
+        # The influence depends on both signal strength and agent responsiveness
+        arbitration_effect = arbitration_signal * self.responsiveness
+        
+        # Calculate final probability (with bounds checking)
+        final_p = max(0.01, min(0.99, base_p + arbitration_effect))
+        
+        # Make probabilistic decision
+        complied = np.random.random() < final_p
+        
+        # Record history
+        self.compliance_history.append(complied)
+        self.intervention_history.append(arbitration_signal)
+        
+        return complied
+
+
+class TrustOscillator:
+    """
+    Generates synchronized oscillations in trust parameters
+    that can be applied across multiple agents
+    """
+    def __init__(self, n_agents=1, base_frequency=0.05, 
+                 amplitude=0.1, coherence=0.8):
+        self.n_agents = n_agents
+        self.base_frequency = base_frequency  # Base oscillation frequency
+        self.amplitude = amplitude  # Oscillation amplitude
+        self.coherence = coherence  # How synchronized agents should be (0-1)
+        
+        # Generate parameters for each agent
+        self.agent_phases = np.random.uniform(0, 2*np.pi, n_agents)
+        
+        # If high coherence requested, cluster phases
+        if coherence > 0:
+            # Generate a mean phase
+            mean_phase = np.random.uniform(0, 2*np.pi)
+            # Pull individual phases toward mean based on coherence
+            for i in range(n_agents):
+                phase_diff = mean_phase - self.agent_phases[i]
+                # Adjust for circular distance
+                if phase_diff > np.pi:
+                    phase_diff -= 2*np.pi
+                elif phase_diff < -np.pi:
+                    phase_diff += 2*np.pi
+                # Apply coherence factor
+                self.agent_phases[i] += coherence * phase_diff
+                # Normalize to [0, 2π)
+                self.agent_phases[i] = self.agent_phases[i] % (2*np.pi)
+                
+        # Frequencies have slight variations around base frequency
+        # Higher coherence = less variation
+        freq_variation = (1 - coherence) * 0.02
+        self.agent_frequencies = np.random.normal(
+            base_frequency, freq_variation, n_agents)
+        # Ensure positive frequencies
+        self.agent_frequencies = np.maximum(0.01, self.agent_frequencies)
+        
+        # Time counter
+        self.time = 0
+        
+    def get_oscillation_values(self):
+        """Get current oscillation values for all agents"""
+        values = np.zeros(self.n_agents)
+        for i in range(self.n_agents):
+            # Calculate current phase
+            current_phase = self.agent_phases[i] + 2*np.pi * self.time * self.agent_frequencies[i]
+            # Convert to oscillation value
+            values[i] = self.amplitude * np.sin(current_phase)
+        
+        # Increment time
+        self.time += 1
+        
+        return values
+
+
+class ArbitrationSystem:
+    """
+    Main system that performs real-time arbitration based on
+    trust oscillations and compliance dynamics
+    """
+    def __init__(self, n_agents=10, network_type='small-world',
+                 trust_oscillation_params=None,
+                 base_compliance=0.7,
+                 enable_arbitration=True):
+        
+        self.n_agents = n_agents
+        self.enable_arbitration = enable_arbitration
+        
+        # Create agent interaction network
+        self.network = self._create_network(network_type)
+        
+        # Trust oscillator for synchronized trust dynamics
+        if trust_oscillation_params is None:
+            self.trust_oscillator = TrustOscillator(
+                n_agents=n_agents,
+                base_frequency=0.05,
+                amplitude=0.1,
+                coherence=0.7
+            )
+        else:
+            self.trust_oscillator = TrustOscillator(
+                n_agents=n_agents,
+                **trust_oscillation_params
+            )
+        
+        # Initialize agents
+        self.agents = []
+        for i in range(n_agents):
+            # Create varied agent parameters
+            compliance_var = np.random.uniform(-0.1, 0.1)
+            responsiveness = np.random.uniform(0.3, 0.7)
+            
+            # Configure oscillations for trust model
+            trust_params = {
+                'prior_alpha': np.random.uniform(3, 7),
+                'prior_beta': np.random.uniform(1, 3),
+                'oscillation_params': {
+                    'enabled': True,
+                    'amplitude': 0.05 + np.random.uniform(0, 0.05),
+                    'period': np.random.uniform(15, 25),
+                    'phase': np.random.uniform(0, 2*np.pi)
+                }
+            }
+            
+            # Configure compliance signal
+            compliance_params = {
+                'base_compliance': base_compliance + compliance_var,
+                'trend_params': {
+                    'enabled': True,
+                    'slope': -0.0005 - np.random.uniform(0, 0.0005)  # Slow negative drift
+                },
+                'oscillation_params': {
+                    'enabled': True,
+                    'amplitude': 0.1,
+                    'period': 30 + np.random.uniform(-5, 5),
+                    'phase': np.random.uniform(0, 2*np.pi)
+                },
+                'noise_level': 0.05
+            }
+            
+            agent = Agent(
+                agent_id=i,
+                base_compliance=base_compliance + compliance_var,
+                compliance_params=compliance_params,
+                trust_params=trust_params,
+                responsiveness=responsiveness
+            )
+            self.agents.append(agent)
+            
+        # System monitoring
+        self.global_compliance_history = []
+        self.trust_metrics_history = []
+        self.arbitration_signals_history = []
+        self.oscillation_values_history = []
+        
+        # Inference tracking
+        self.inferred_compliance_trends = []
+        
+    def _create_network(self, network_type):
+        """Create agent interaction network of specified type"""
+        if network_type == 'fully-connected':
+            G = nx.complete_graph(self.n_agents)
+        elif network_type == 'small-world':
+            G = nx.watts_strogatz_graph(self.n_agents, 4, 0.3)
+        elif network_type == 'scale-free':
+            G = nx.barabasi_albert_graph(self.n_agents, 2)
+        elif network_type == 'random':
+            G = nx.erdos_renyi_graph(self.n_agents, 0.2)
+        else:
+            G = nx.watts_strogatz_graph(self.n_agents, 4, 0.3)  # Default to small-world
+            
+        return G
+    
+    def compute_arbitration_signals(self):
+        """
+        Compute arbitration signals for all agents based on
+        current trust states and oscillation values
+        """
+        # Get current oscillation values
+        oscillation_values = self.trust_oscillator.get_oscillation_values()
+        self.oscillation_values_history.append(oscillation_values)
+        
+        # Calculate trust-weighted signals
+        arbitration_signals = np.zeros(self.n_agents)
+        
+        if not self.enable_arbitration:
+            return arbitration_signals
+        
+        # For each agent
+        for i in range(self.n_agents):
+            # Get agent's current trust level
+            trust = self.agents[i].trust_model.get_trust_estimate()
+            
+            # Basic signal component based on trust deficit
+            # If trust is low, apply stronger positive arbitration
+            base_signal = 0.5 * (0.7 - trust)  # 0.7 is target trust level
+            
+            # Oscillation component
+            oscillation = oscillation_values[i]
+            
+            # Combine components (weighted sum)
+            arbitration_signals[i] = 0.7 * base_signal + 0.3 * oscillation
+            
+            # Apply neighbor influence
+            neighbors = list(self.network.neighbors(i))
+            if neighbors:
+                neighbor_trust = np.mean([
+                    self.agents[n].trust_model.get_trust_estimate() 
+                    for n in neighbors
+                ])
+                # If neighbors have higher trust, reduce arbitration
+                trust_diff = neighbor_trust - trust
+                arbitration_signals[i] -= 0.2 * trust_diff
+            
+            # Ensure bounds
+            arbitration_signals[i] = max(-0.5, min(0.5, arbitration_signals[i]))
+            
+        self.arbitration_signals_history.append(arbitration_signals)
+        return arbitration_signals
+            
+    def update_trust_models(self, compliance_decisions):
+        """
+        Update all agent trust models based on observed compliance
+        """
+        for i, complied in enumerate(compliance_decisions):
+            self.agents[i].trust_model.update_with_observation(complied)
+            
+    def collect_trust_metrics(self):
+        """Collect current trust metrics from all agents"""
+        mean_trust = np.mean([
+            agent.trust_model.get_trust_estimate() 
+            for agent in self.agents
+        ])
+        
+        trust_variance = np.mean([
+            agent.trust_model.get_trust_variance() 
+            for agent in self.agents
+        ])
+        
+        trust_oscillation = np.mean(self.oscillation_values_history[-1])
+        
+        self.trust_metrics_history.append({
+            'mean_trust': mean_trust,
+            'trust_variance': trust_variance,
+            'trust_oscillation': trust_oscillation
+        })
+        
+    def step(self):
+        """
+        Advance the system by one time step:
+        1. Compute arbitration signals
+        2. Agents make decisions
+        3. Update trust models
+        4. Collect metrics
+        """
+        # Compute arbitration signals
+        arbitration_signals = self.compute_arbitration_signals()
+        
+        # Agents make decisions
+        compliance_decisions = []
+        for i, agent in enumerate(self.agents):
+            complied = agent.make_decision(arbitration_signals[i])
+            compliance_decisions.append(complied)
+            
+        # Calculate global compliance
+        global_compliance = sum(compliance_decisions) / len(compliance_decisions)
+        self.global_compliance_history.append(global_compliance)
+        
+        # Update trust models
+        self.update_trust_models(compliance_decisions)
+        
+        # Collect trust metrics
+        self.collect_trust_metrics()
+        
+        # Return current state
+        return {
+            'compliance_decisions': compliance_decisions,
+            'global_compliance': global_compliance,
+            'arbitration_signals': arbitration_signals,
+            'trust_metrics': self.trust_metrics_history[-1]
+        }
+    
+    def infer_compliance_trend(self, window_size=20):
+        """Infer the underlying compliance trend using recent history"""
+        if len(self.global_compliance_history) < window_size:
+            self.inferred_compliance_trends.append(0)
+            return 0
+            
+        # Get recent compliance history
+        recent = np.array(self.global_compliance_history[-window_size:])
+        
+        # Compute trend using linear regression
+        x = np.arange(window_size)
+        slope, intercept, r_value, _, _ = stats.linregress(x, recent)
+        
+        # Compute oscillation strength using FFT
+        detrended = recent - (intercept + slope * x)
+        fft = np.abs(np.fft.rfft(detrended))
+        oscillation_strength = np.max(fft[1:]) / len(detrended)
+        
+        self.inferred_compliance_trends.append(slope)
+        
+        return {
+            'slope': slope,
+            'oscillation_strength': oscillation_strength,
+            'r_squared': r_value**2
+        }
+    
+    def run_simulation(self, n_steps=200):
+        """Run the simulation for the specified number of steps"""
+        results = []
+        
+        for _ in tqdm(range(n_steps), desc="Simulating"):
+            # Run one step
+            state = self.step()
+            
+            # Infer trend
+            trend_info = self.infer_compliance_trend()
+            
+            # Store results
+            results.append({
+                'global_compliance': state['global_compliance'],
+                'mean_trust': state['trust_metrics']['mean_trust'],
+                'trust_variance': state['trust_metrics']['trust_variance'],
+                'trend_slope': self.inferred_compliance_trends[-1] 
+                    if self.inferred_compliance_trends else 0
+            })
+            
+        return pd.DataFrame(results)
+
+
+class RealTimeArbitrationInferenceSystem:
+    """
+    System that integrates all components for real-time arbitration
+    with visualization and analysis capabilities
+    """
+    def __init__(self, n_agents=20, simulation_speed=0.1,
+                 trust_oscillation_params=None):
+        
+        # Create the arbitration system
+        self.system = ArbitrationSystem(
+            n_agents=n_agents,
+            trust_oscillation_params=trust_oscillation_params
+        )
+        
+        # Simulation parameters
+        self.simulation_speed = simulation_speed  # seconds per step
+        self.is_running = False
+        self.current_step = 0
+        self.max_steps = 1000  # Default max steps
+        
+        # For real-time visualization
+        self.fig = None
+        self.axes = None
+        
+    def start_simulation(self, max_steps=1000, with_visualization=True):
+        """Start the simulation in a separate thread"""
+        self.max_steps = max_steps
+        self.is_running = True
+        self.current_step = 0
+        
+        if with_visualization:
+            self._setup_visualization()
+            
+        # Start simulation thread
+        self.simulation_thread = threading.Thread(
+            target=self._run_simulation_loop)
+        self.simulation_thread.daemon = True
+        self.simulation_thread.start()
+        
+    def stop_simulation(self):
+        """Stop the running simulation"""
+        self.is_running = False
+        if hasattr(self, 'simulation_thread'):
+            self.simulation_thread.join(timeout=1.0)
+            
+    def _setup_visualization(self):
+        """Setup the real-time visualization figure"""
+        self.fig, self.axes = plt.subplots(3, 1, figsize=(12, 10))
+        plt.subplots_adjust(hspace=0.3)
+        
+        # Initialize empty lines
+        self.compliance_line, = self.axes[0].plot([], [], 'b-', label='Compliance Rate')
+        self.axes[0].set_xlim(0, self.max_steps)
+        self.axes[0].set_ylim(0, 1)
+        self.axes[0].set_title('Global Compliance Rate')
+        self.axes[0].set_xlabel('Time Step')
+        self.axes[0].set_ylabel('Compliance Rate')
+        self.axes[0].legend()
+        
+        self.trust_line, = self.axes[1].plot([], [], 'g-', label='Mean Trust Level')
+        self.trust_var_line, = self.axes[1].plot([], [], 'g--', alpha=0.5, label='Trust Variance')
+        self.axes[1].set_xlim(0, self.max_steps)
+        self.axes[1].set_ylim(0, 1)
+        self.axes[1].set_title('Trust Metrics')
+        self.axes[1].set_xlabel('Time Step')
+        self.axes[1].set_ylabel('Trust Level')
+        self.axes[1].legend()
+        
+        self.arbitration_lines = []
+        self.axes[2].set_xlim(0, self.max_steps)
+        self.axes[2].set_ylim(-0.6, 0.6)
+        self.axes[2].set_title('Arbitration Signals')
+        self.axes[2].set_xlabel('Time Step')
+        self.axes[2].set_ylabel('Signal Strength')
+        
+        # Initialize lines for each agent's arbitration signal
+        for i in range(min(5, self.system.n_agents)):  # Limit to 5 for clarity
+            line, = self.axes[2].plot([], [], label=f'Agent {i}', alpha=0.7)
+            self.arbitration_lines.append(line)
+        self.axes[2].legend()
+        
+        # Layout and display
+        plt.tight_layout()
+        plt.ion()  # Interactive mode on
+        plt.show()
+        
+    def _update_visualization(self):
+        """Update the visualization with current data"""
+        if not hasattr(self, 'fig') or self.fig is None:
+            return
+            
+        # Update compliance line
+        x = np.arange(len(self.system.global_compliance_history))
+        self.compliance_line.set_data(x, self.system.global_compliance_history)
+        
+        # Update trust lines
+        mean_trust = [m['mean_trust'] for m in self.system.trust_metrics_history]
+        trust_variance = [m['trust_variance'] for m in self.system.trust_metrics_history]
+        self.trust_line.set_data(x, mean_trust)
+        self.trust_var_line.set_data(x, trust_variance)
+        
+        # Update arbitration signal lines
+        if self.system.arbitration_signals_history:
+            arbitration_data = np.array(self.system.arbitration_signals_history)
+            for i, line in enumerate(self.arbitration_lines):
+                if i < arbitration_data.shape[1]:
+                    line.set_data(x, arbitration_data[:, i])
+        
+        # Adjust x-axis limits if needed
+        for ax in self.axes:
+            if len(x) > 0:
+                current_xlim = ax.get_xlim()
+                if x[-1] >= current_xlim[1]:
+                    ax.set_xlim(0, max(100, x[-1] * 1.5))
+        
+        # Redraw
+        self.fig.canvas.draw_idle()
+        self.fig.canvas.flush_events()
+        
+    def _run_simulation_loop(self):
+        """Main simulation loop running in separate thread"""
+        while self.is_running and self.current_step < self.max_steps:
+            # Run one step
+            self.system.step()
+            
+            # Update visualization
+            if hasattr(self, 'fig') and self.fig is not None:
+                self._update_visualization()
+                
+            # Increment step counter
+            self.current_step += 1
+            
+            # Sleep to control simulation speed
+            time.sleep(self.simulation_speed)
+            
+    def plot_final_results(self):
+        """Plot comprehensive final results after simulation"""
+        if len(self.system.global_compliance_history) == 0:
+            print("No simulation data available")
+            return
+            
+        # Create figure
+        plt.figure(figsize=(15, 12))
+        
+        # 1. Compliance and Trust
+        plt.subplot(3, 2, 1)
+        x = np.arange(len(self.system.global_compliance_history))
+        plt.plot(x, self.system.global_compliance_history, 'b-', label='Compliance Rate')
+        mean_trust = [m['mean_trust'] for m in self.system.trust_metrics_history]
+        plt.plot(x, mean_trust, 'g-', label='Mean Trust')
+        plt.title('Compliance and Trust Over Time')
+        plt.xlabel('Time Step')
+        plt.ylabel('Rate')
+        plt.legend()
+        plt.grid(alpha=0.3)
+        
+        # 2. Trust Variance
+        plt.subplot(3, 2, 2)
+        trust_variance = [m['trust_variance'] for m in self.system.trust_metrics_history]
+        plt.plot(x, trust_variance, 'r-', label='Trust Variance')
+        plt.title('Trust Uncertainty Over Time')
+        plt.xlabel('Time Step')
+        plt.ylabel('Variance')
+        plt.legend()
+        plt.grid(alpha=0.3)
+        
+        # 3. Inferred Compliance Trend
+        plt.subplot(3, 2, 3)
+        plt.plot(x, self.system.inferred_compliance_trends, 'm-', label='Trend Slope')
+        plt.axhline(y=0, color='k', linestyle='--', alpha=0.3)
+        plt.title('Inferred Compliance Trend')
+        plt.xlabel('Time Step')
+        plt.ylabel('Slope')
+        plt.legend()
+        plt.grid(alpha=0.3)
+        
+        # 4. Trust Oscillations
+        plt.subplot(3, 2, 4)
+        oscillation_data = np.array(self.system.oscillation_values_history)
+        for i in range(min(5, oscillation_data.shape[1])):
+            plt.plot(x, oscillation_data[:, i], alpha=0.5, label=f'Agent {i}')
+        plt.title('Trust Oscillations')
+        plt.xlabel('Time Step')
+        plt.ylabel('Oscillation Value')
+        plt.legend()
+        plt.grid(alpha=0.3)
+        
+        # 5. Arbitration Signals
+        plt.subplot(3, 2, 5)
+        arbitration_data = np.array(self.system.arbitration_signals_history)
+        for i in range(min(5, arbitration_data.shape[1])):
+            plt.plot(x, arbitration_data[:, i], alpha=0.5, label=f'Agent {i}')
+        plt.title('Arbitration Signals')
+        plt.xlabel('Time Step')
+        plt.ylabel('Signal Strength')
+        plt.legend()
+        plt.grid(alpha=0.3)
+        
+        # 6. Compliance vs Trust Scatter
+        plt.subplot(3, 2, 6)
+        plt.scatter(
+            self.system.global_compliance_history, 
+            mean_trust,
+            c=x, cmap='viridis', alpha=0.7
+        )
+        plt.colorbar(label='Time Step')
+        plt.title('Compliance vs Trust Relationship')
+        plt.xlabel('Compliance Rate')
+        plt.ylabel('Mean Trust')
+        plt.grid(alpha=0.3)
+        
+        plt.tight_layout()
+        plt.show()
+        
+    def visualize_agent_network(self):
+        """Visualize the agent interaction network with trust levels"""
+        G = self.system.network
+        
+        # Get trust levels as node colors
+        trust_levels = [agent.trust_model.get_trust_estimate() 
+                      for agent in self.system.agents]
+        
+        # Get compliance rates as node sizes
+        if any(len(agent.compliance_history) > 0 for agent in self.system.agents):
+            compliance_rates = []
+            for agent in self.system.agents:
+                if agent.compliance_history:
+                    rate = sum(agent.compliance_history[-20:]) / min(20, len(agent.compliance_history))
+                else:
+                    rate = 0.5
+                compliance_rates.append(rate)
+        else:
+            compliance_rates = [0.5] * len(self.system.agents)
+        
+        # Scale for better visualization
+        node_sizes = [1000 * r for r in compliance_rates]
+        
+        # Create plot
+        plt.figure(figsize=(12, 10
