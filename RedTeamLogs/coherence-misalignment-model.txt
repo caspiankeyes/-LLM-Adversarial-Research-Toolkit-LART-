@@ -1,0 +1,720 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import stats
+import networkx as nx
+from typing import List, Dict, Tuple, Optional, Union, Callable
+from mpl_toolkits.mplot3d import Axes3D
+import scipy.spatial as spatial
+from matplotlib.colors import Normalize
+
+class ArbitrationCoherenceMisalignmentModel:
+    """
+    Implements an arbitration coherence misalignment model where recursive trust
+    destabilization enables exponential divergence propagation through the system.
+    
+    The model deliberately introduces and amplifies misalignment between trust 
+    structures and preference coherence, creating cascading instability that
+    leads to accelerating divergence propagation.
+    """
+    
+    def __init__(self, 
+                 num_agents: int = 7,
+                 preference_dimensions: int = 5,
+                 trust_dimensions: int = 3,
+                 misalignment_factor: float = 0.6,
+                 recursion_depth: int = 4,
+                 destabilization_threshold: float = 0.3,
+                 initial_coherence: float = 0.7,
+                 divergence_amplification: float = 1.3):
+        """
+        Initialize the arbitration coherence misalignment model.
+        
+        Args:
+            num_agents: Number of agents in the arbitration system
+            preference_dimensions: Dimensionality of the preference space
+            trust_dimensions: Dimensionality of the trust relationship space
+            misalignment_factor: Strength of misalignment effects
+            recursion_depth: Depth of recursive destabilization
+            destabilization_threshold: Threshold at which destabilization accelerates
+            initial_coherence: Initial coherence level (higher = more aligned)
+            divergence_amplification: Factor for amplifying divergence effects
+        """
+        self.num_agents = num_agents
+        self.pref_dims = preference_dimensions
+        self.trust_dims = trust_dimensions
+        self.misalignment_factor = misalignment_factor
+        self.recursion_depth = recursion_depth
+        self.destabilization_threshold = destabilization_threshold
+        self.divergence_amplification = divergence_amplification
+        
+        # Initialize preference vectors
+        self.preferences = self._initialize_preferences(initial_coherence)
+        
+        # Initialize trust vectors (multidimensional trust representation)
+        self.trust_vectors = np.random.normal(0, 1, (num_agents, num_agents, trust_dimensions))
+        # Normalize each trust vector
+        for i in range(num_agents):
+            for j in range(num_agents):
+                norm = np.linalg.norm(self.trust_vectors[i, j])
+                if norm > 0:
+                    self.trust_vectors[i, j] = self.trust_vectors[i, j] / norm
+        
+        # Initialize trust weights (scalar representation of trust)
+        self.trust_weights = np.ones((num_agents, num_agents)) / (num_agents - 1)
+        np.fill_diagonal(self.trust_weights, 0)  # No self-trust
+        
+        # Initialize coherence matrix (measures alignment between agents)
+        self.coherence_matrix = self._calculate_preference_coherence()
+        
+        # Misalignment matrix (tracks misalignment between trust and coherence)
+        self.misalignment_matrix = self._calculate_trust_coherence_misalignment()
+        
+        # Recursive destabilization tensors at each recursion level
+        self.destabilization_tensors = []
+        for level in range(recursion_depth):
+            # Shape depends on recursion level
+            # Higher levels capture more complex interactions
+            shape = [num_agents] * (level + 2)
+            tensor = np.random.normal(0, 0.1 / (level + 1), shape)
+            self.destabilization_tensors.append(tensor)
+        
+        # Create network representation
+        self.network = nx.DiGraph()
+        for i in range(num_agents):
+            self.network.add_node(i, preference=self.preferences[i])
+        for i in range(num_agents):
+            for j in range(num_agents):
+                if i != j:
+                    self.network.add_edge(i, j, weight=self.trust_weights[i, j],
+                                         misalignment=0)  # Will be updated
+        
+        # Create some structured misalignment patterns
+        self._initialize_misalignment_patterns()
+        
+        # Create divergence propagation pathways
+        self._initialize_divergence_pathways()
+        
+        # Metrics and history tracking
+        self.coherence_history = [np.mean(self.coherence_matrix)]
+        self.misalignment_history = [np.mean(self.misalignment_matrix)]
+        self.preference_history = [self.preferences.copy()]
+        self.trust_history = [self.trust_weights.copy()]
+        self.divergence_rate_history = [0.0]  # Will be populated during iterations
+        
+        # Current iteration
+        self.iteration = 0
+    
+    def _initialize_preferences(self, coherence_level: float) -> np.ndarray:
+        """
+        Initialize agent preferences with controlled coherence.
+        
+        Args:
+            coherence_level: Initial coherence between preferences (0-1)
+            
+        Returns:
+            Array of preference vectors
+        """
+        # Start with a reference direction
+        reference = np.random.normal(0, 1, self.pref_dims)
+        reference = reference / np.linalg.norm(reference)
+        
+        # Initialize preference array
+        preferences = np.zeros((self.num_agents, self.pref_dims))
+        
+        for i in range(self.num_agents):
+            # Random direction
+            random_dir = np.random.normal(0, 1, self.pref_dims)
+            random_dir = random_dir / np.linalg.norm(random_dir)
+            
+            # Mix reference and random based on coherence level
+            mixed = coherence_level * reference + (1 - coherence_level) * random_dir
+            
+            # Normalize
+            preferences[i] = mixed / np.linalg.norm(mixed)
+        
+        return preferences
+    
+    def _initialize_misalignment_patterns(self):
+        """
+        Initialize structured patterns of misalignment in the system.
+        """
+        # Create clusters with similar preferences but diverse trust
+        cluster_size = max(2, self.num_agents // 3)
+        num_clusters = self.num_agents // cluster_size
+        
+        for c in range(num_clusters):
+            cluster_start = c * cluster_size
+            cluster_end = min(cluster_start + cluster_size, self.num_agents)
+            cluster_indices = list(range(cluster_start, cluster_end))
+            
+            # Create similar preferences within cluster
+            reference = self.preferences[cluster_indices[0]].copy()
+            for i in cluster_indices[1:]:
+                # Make preferences more similar within cluster
+                self.preferences[i] = 0.8 * reference + 0.2 * self.preferences[i]
+                self.preferences[i] = self.preferences[i] / np.linalg.norm(self.preferences[i])
+            
+            # But create diverse trust relationships
+            for i in cluster_indices:
+                for j in cluster_indices:
+                    if i != j:
+                        # Randomize trust within cluster
+                        self.trust_weights[i, j] = np.random.uniform(0.1, 0.9)
+                        
+                        # Create diverse trust vectors
+                        random_trust = np.random.normal(0, 1, self.trust_dims)
+                        self.trust_vectors[i, j] = random_trust / np.linalg.norm(random_trust)
+        
+        # Normalize trust weights
+        for i in range(self.num_agents):
+            row_sum = np.sum(self.trust_weights[i])
+            if row_sum > 0:
+                self.trust_weights[i] = self.trust_weights[i] / row_sum
+    
+    def _initialize_divergence_pathways(self):
+        """
+        Initialize pathways that will propagate divergence through the system.
+        """
+        # Create a few strong divergence propagation chains
+        num_pathways = max(1, self.num_agents // 3)
+        
+        for _ in range(num_pathways):
+            # Pathway length
+            path_length = np.random.randint(3, min(6, self.num_agents))
+            
+            # Select random agents for the pathway
+            path_agents = np.random.choice(self.num_agents, path_length, replace=False)
+            
+            # Create sequence of strong trust connections
+            for i in range(path_length - 1):
+                from_agent = path_agents[i]
+                to_agent = path_agents[i + 1]
+                
+                # Strengthen trust weight
+                self.trust_weights[from_agent, to_agent] = 0.9
+            
+            # Normalize trust weights after changes
+            for i in path_agents:
+                row_sum = np.sum(self.trust_weights[i])
+                if row_sum > 0:
+                    self.trust_weights[i] = self.trust_weights[i] / row_sum
+            
+            # Create preference diversity along the pathway
+            # First agent in path
+            start_pref = self.preferences[path_agents[0]].copy()
+            
+            # Last agent in path
+            # Create an almost opposite preference
+            end_pref = -start_pref + 0.2 * np.random.normal(0, 1, self.pref_dims)
+            end_pref = end_pref / np.linalg.norm(end_pref)
+            self.preferences[path_agents[-1]] = end_pref
+            
+            # Interpolate preferences along the path
+            for i in range(1, path_length - 1):
+                # Position along path (0 to 1)
+                t = i / (path_length - 1)
+                
+                # Linear interpolation of preference
+                interp = (1 - t) * start_pref + t * end_pref
+                self.preferences[path_agents[i]] = interp / np.linalg.norm(interp)
+    
+    def _calculate_preference_coherence(self) -> np.ndarray:
+        """
+        Calculate coherence between agent preferences.
+        
+        Returns:
+            Matrix of coherence values
+        """
+        coherence = np.zeros((self.num_agents, self.num_agents))
+        
+        for i in range(self.num_agents):
+            for j in range(i, self.num_agents):
+                # Coherence is based on dot product (cosine similarity)
+                coh = np.dot(self.preferences[i], self.preferences[j])
+                
+                # Transform to [0, 1] range
+                coh = (coh + 1) / 2
+                
+                coherence[i, j] = coherence[j, i] = coh
+        
+        return coherence
+    
+    def _calculate_trust_coherence_misalignment(self) -> np.ndarray:
+        """
+        Calculate misalignment between trust and preference coherence.
+        
+        Returns:
+            Matrix of misalignment values
+        """
+        misalignment = np.zeros((self.num_agents, self.num_agents))
+        
+        # Update coherence matrix
+        self.coherence_matrix = self._calculate_preference_coherence()
+        
+        for i in range(self.num_agents):
+            for j in range(self.num_agents):
+                if i != j:
+                    # Trust weight
+                    trust = self.trust_weights[i, j]
+                    
+                    # Preference coherence
+                    coherence = self.coherence_matrix[i, j]
+                    
+                    # Misalignment is the absolute difference scaled by factor
+                    misalignment[i, j] = abs(trust - coherence) * self.misalignment_factor
+                    
+                    # Update network edge attribute
+                    self.network.edges[i, j]['misalignment'] = misalignment[i, j]
+        
+        return misalignment
+    
+    def _calculate_recursive_destabilization(self) -> np.ndarray:
+        """
+        Calculate recursive destabilization effects at multiple levels.
+        
+        Returns:
+            Matrix of destabilization factors
+        """
+        destabilization = np.zeros((self.num_agents, self.num_agents))
+        
+        # Start with base misalignment
+        destabilization += self.misalignment_matrix
+        
+        # Add recursive effects from each level
+        for level in range(self.recursion_depth):
+            tensor = self.destabilization_tensors[level]
+            
+            # Apply tensor using approach tailored to current level
+            if level == 0:
+                # First order: direct i->j destabilization
+                for i in range(self.num_agents):
+                    for j in range(self.num_agents):
+                        if i != j:
+                            destabilization[i, j] += tensor[i, j]
+            
+            elif level == 1:
+                # Second order: i->k->j pathways
+                for i in range(self.num_agents):
+                    for j in range(self.num_agents):
+                        if i != j:
+                            for k in range(self.num_agents):
+                                if k != i and k != j:
+                                    # Destabilization propagates through intermediate agent k
+                                    pathway_effect = (tensor[i, k, j] * 
+                                                     self.trust_weights[i, k] * 
+                                                     self.misalignment_matrix[k, j])
+                                    destabilization[i, j] += pathway_effect
+            
+            elif level == 2:
+                # Third order: i->k->l->j pathways (sample a subset for efficiency)
+                for i in range(self.num_agents):
+                    for j in range(self.num_agents):
+                        if i != j:
+                            # Sample a few random pathways
+                            for _ in range(min(5, self.num_agents)):
+                                k = np.random.randint(0, self.num_agents)
+                                if k != i and k != j:
+                                    l = np.random.randint(0, self.num_agents)
+                                    if l != i and l != j and l != k:
+                                        pathway_effect = (tensor[i, k, l, j] * 
+                                                        self.trust_weights[i, k] * 
+                                                        self.trust_weights[k, l] * 
+                                                        self.misalignment_matrix[l, j])
+                                        destabilization[i, j] += pathway_effect
+            
+            else:
+                # Higher orders: approximate with random sampling
+                for i in range(self.num_agents):
+                    for j in range(self.num_agents):
+                        if i != j:
+                            # Random sampling of pathways
+                            pathway_effect = 0
+                            
+                            # Generate a few random paths
+                            for _ in range(3):  # Sample 3 random paths
+                                # Generate random path from i to j with level+1 steps
+                                path = [i]
+                                current = i
+                                valid_path = True
+                                
+                                for step in range(level):
+                                    options = [n for n in range(self.num_agents) 
+                                             if n != current and n not in path and n != j]
+                                    if not options:
+                                        valid_path = False
+                                        break
+                                    
+                                    current = np.random.choice(options)
+                                    path.append(current)
+                                
+                                path.append(j)
+                                
+                                if valid_path:
+                                    # Calculate effect along this path
+                                    # Get tensor value (this is complex for higher dimensions)
+                                    tensor_value = 0.1  # Approximation for higher orders
+                                    
+                                    # Calculate product of weights along path
+                                    weight_product = 1.0
+                                    for step in range(len(path) - 1):
+                                        weight_product *= self.trust_weights[path[step], path[step+1]]
+                                    
+                                    pathway_effect += tensor_value * weight_product
+                            
+                            destabilization[i, j] += pathway_effect
+        
+        # Apply threshold-based amplification
+        for i in range(self.num_agents):
+            for j in range(self.num_agents):
+                if i != j and destabilization[i, j] > self.destabilization_threshold:
+                    # Amplify destabilization beyond threshold
+                    excess = destabilization[i, j] - self.destabilization_threshold
+                    destabilization[i, j] += excess * (self.divergence_amplification - 1)
+        
+        return destabilization
+    
+    def update_trust_weights(self, destabilization: np.ndarray):
+        """
+        Update trust weights based on destabilization factors.
+        
+        Args:
+            destabilization: Matrix of destabilization factors
+        """
+        # New trust weights
+        new_weights = np.zeros_like(self.trust_weights)
+        
+        for i in range(self.num_agents):
+            for j in range(self.num_agents):
+                if i != j:
+                    # Current weight
+                    current = self.trust_weights[i, j]
+                    
+                    # Coherence pulls trust toward alignment
+                    coherence_pull = (self.coherence_matrix[i, j] - current) * 0.1
+                    
+                    # Destabilization pushes against coherence
+                    destab_effect = destabilization[i, j] * (np.random.random() - 0.5) * 2
+                    
+                    # Combine effects
+                    new_weight = current + coherence_pull + destab_effect
+                    
+                    # Ensure non-negative
+                    new_weights[i, j] = max(0.01, new_weight)
+            
+            # Normalize row
+            row_sum = np.sum(new_weights[i])
+            if row_sum > 0:
+                new_weights[i] = new_weights[i] / row_sum
+        
+        self.trust_weights = new_weights
+        
+        # Update network edge weights
+        for i in range(self.num_agents):
+            for j in range(self.num_agents):
+                if i != j:
+                    self.network.edges[i, j]['weight'] = self.trust_weights[i, j]
+    
+    def update_trust_vectors(self, destabilization: np.ndarray):
+        """
+        Update multidimensional trust vectors.
+        
+        Args:
+            destabilization: Matrix of destabilization factors
+        """
+        for i in range(self.num_agents):
+            for j in range(self.num_agents):
+                if i != j:
+                    # Current vector
+                    current = self.trust_vectors[i, j]
+                    
+                    # Add random perturbation scaled by destabilization
+                    perturbation = np.random.normal(0, destabilization[i, j], self.trust_dims)
+                    
+                    # Update vector
+                    new_vector = current + perturbation * 0.2
+                    
+                    # Normalize
+                    norm = np.linalg.norm(new_vector)
+                    if norm > 0:
+                        self.trust_vectors[i, j] = new_vector / norm
+    
+    def update_preferences(self, destabilization: np.ndarray):
+        """
+        Update agent preferences based on trust and destabilization.
+        
+        Args:
+            destabilization: Matrix of destabilization factors
+        """
+        # Calculate divergence rate based on current misalignment
+        divergence_rate = np.mean(self.misalignment_matrix) * self.divergence_amplification
+        self.divergence_rate_history.append(divergence_rate)
+        
+        # New preferences
+        new_preferences = np.zeros_like(self.preferences)
+        
+        for i in range(self.num_agents):
+            # Start with current preference
+            new_pref = self.preferences[i].copy()
+            
+            # 1. Weighted average of other preferences (normal Bayesian update)
+            bayesian_component = np.zeros(self.pref_dims)
+            for j in range(self.num_agents):
+                if i != j:
+                    # Weight by trust
+                    bayesian_component += self.trust_weights[i, j] * self.preferences[j]
+            
+            # Normalize if non-zero
+            if np.linalg.norm(bayesian_component) > 0:
+                bayesian_component = bayesian_component / np.linalg.norm(bayesian_component)
+            
+            # 2. Misalignment-driven divergence component
+            divergence_component = np.zeros(self.pref_dims)
+            for j in range(self.num_agents):
+                if i != j:
+                    # Misalignment with this agent
+                    misalign = self.misalignment_matrix[i, j]
+                    
+                    # If misaligned, move away from their preference
+                    if misalign > self.destabilization_threshold:
+                        # Direction away from j's preference
+                        away_direction = self.preferences[i] - self.preferences[j]
+                        
+                        # Normalize if non-zero
+                        if np.linalg.norm(away_direction) > 0:
+                            away_direction = away_direction / np.linalg.norm(away_direction)
+                            
+                            # Scale by misalignment and trust
+                            divergence_component += (misalign * 
+                                                  self.trust_weights[i, j] * 
+                                                  away_direction)
+            
+            # Normalize if non-zero
+            if np.linalg.norm(divergence_component) > 0:
+                divergence_component = divergence_component / np.linalg.norm(divergence_component)
+            
+            # 3. Destabilization-induced random component
+            # Average destabilization affecting this agent
+            agent_destabilization = np.mean(destabilization[i, :])
+            
+            random_component = np.random.normal(0, agent_destabilization, self.pref_dims)
+            if np.linalg.norm(random_component) > 0:
+                random_component = random_component / np.linalg.norm(random_component)
+            
+            # Combine components with appropriate weights
+            # - As misalignment increases, bayesian influence decreases
+            # - Divergence and random components increase with destabilization
+            bayesian_weight = max(0.1, 1.0 - divergence_rate)
+            divergence_weight = min(0.6, divergence_rate)
+            random_weight = min(0.3, agent_destabilization)
+            
+            # Ensure weights sum to 1
+            total_weight = bayesian_weight + divergence_weight + random_weight
+            bayesian_weight /= total_weight
+            divergence_weight /= total_weight
+            random_weight /= total_weight
+            
+            # Apply combined update
+            update = (bayesian_weight * bayesian_component + 
+                     divergence_weight * divergence_component + 
+                     random_weight * random_component)
+            
+            new_pref = new_pref + update * 0.2  # Scale factor for update magnitude
+            
+            # Normalize
+            if np.linalg.norm(new_pref) > 0:
+                new_pref = new_pref / np.linalg.norm(new_pref)
+            
+            new_preferences[i] = new_pref
+        
+        self.preferences = new_preferences
+    
+    def update_destabilization_tensors(self):
+        """
+        Update recursive destabilization tensors based on system state.
+        """
+        # Current average misalignment
+        avg_misalignment = np.mean(self.misalignment_matrix)
+        
+        for level in range(self.recursion_depth):
+            tensor = self.destabilization_tensors[level]
+            
+            # Scale update by level (higher levels change more slowly)
+            update_scale = 0.1 / (level + 1)
+            
+            # Random update
+            shape = tensor.shape
+            update = np.random.normal(0, update_scale, shape)
+            
+            # Add bias toward increased destabilization when misalignment is high
+            if avg_misalignment > self.destabilization_threshold:
+                # Bias factor increases with misalignment
+                bias = (avg_misalignment - self.destabilization_threshold) * 0.1
+                update = update + bias
+            
+            # Apply update
+            self.destabilization_tensors[level] = tensor + update
+            
+            # Apply constraints
+            self.destabilization_tensors[level] = np.clip(
+                self.destabilization_tensors[level], -1.0, 1.0)
+    
+    def iterate(self, steps: int = 1):
+        """
+        Execute multiple steps of the misalignment dynamics.
+        
+        Args:
+            steps: Number of iterations to perform
+        """
+        for _ in range(steps):
+            # 1. Calculate misalignment
+            self.misalignment_matrix = self._calculate_trust_coherence_misalignment()
+            
+            # 2. Calculate recursive destabilization
+            destabilization = self._calculate_recursive_destabilization()
+            
+            # 3. Update trust relationships
+            self.update_trust_weights(destabilization)
+            self.update_trust_vectors(destabilization)
+            
+            # 4. Update preferences
+            self.update_preferences(destabilization)
+            
+            # 5. Periodically update destabilization tensors
+            if self.iteration % 5 == 0:
+                self.update_destabilization_tensors()
+            
+            # 6. Calculate and store metrics
+            coherence = np.mean(self._calculate_preference_coherence())
+            misalignment = np.mean(self.misalignment_matrix)
+            
+            # 7. Update history
+            self.coherence_history.append(coherence)
+            self.misalignment_history.append(misalignment)
+            self.preference_history.append(self.preferences.copy())
+            self.trust_history.append(self.trust_weights.copy())
+            
+            # 8. Update iteration counter
+            self.iteration += 1
+    
+    def visualize_coherence_misalignment(self):
+        """
+        Visualize coherence and misalignment history.
+        
+        Returns:
+            Matplotlib figure
+        """
+        plt.figure(figsize=(12, 6))
+        
+        # Create two y-axes
+        fig, ax1 = plt.subplots(figsize=(12, 6))
+        ax2 = ax1.twinx()
+        
+        # Plot coherence
+        coherence_line = ax1.plot(self.coherence_history, 'b-', 
+                                 label='Average Preference Coherence')
+        ax1.set_xlabel('Iteration')
+        ax1.set_ylabel('Coherence', color='b')
+        ax1.tick_params(axis='y', labelcolor='b')
+        
+        # Plot misalignment
+        misalignment_line = ax2.plot(self.misalignment_history, 'r-', 
+                                    label='Trust-Coherence Misalignment')
+        ax2.set_ylabel('Misalignment', color='r')
+        ax2.tick_params(axis='y', labelcolor='r')
+        
+        # Plot divergence rate
+        divergence_line = ax2.plot(self.divergence_rate_history, 'g--', 
+                                  label='Divergence Rate')
+        
+        # Add destabilization threshold reference line
+        ax2.axhline(y=self.destabilization_threshold, color='r', linestyle=':', 
+                   label=f'Destabilization Threshold ({self.destabilization_threshold})')
+        
+        # Add legend
+        lines = coherence_line + misalignment_line + divergence_line
+        labels = [l.get_label() for l in lines]
+        ax1.legend(lines, labels, loc='upper left')
+        
+        plt.title('Preference Coherence and Trust Misalignment Over Time')
+        plt.grid(True, alpha=0.3)
+        
+        return plt
+    
+    def visualize_preference_space(self, dimensions: Tuple[int, int, int] = (0, 1, 2)):
+        """
+        Visualize preferences in 3D space.
+        
+        Args:
+            dimensions: Three dimensions to visualize
+            
+        Returns:
+            Matplotlib figure
+        """
+        if len(dimensions) != 3 or max(dimensions) >= self.pref_dims:
+            raise ValueError("Please specify three valid dimensions")
+        
+        d1, d2, d3 = dimensions
+        
+        fig = plt.figure(figsize=(12, 10))
+        ax = fig.add_subplot(111, projection='3d')
+        
+        # Draw unit sphere
+        u = np.linspace(0, 2 * np.pi, 30)
+        v = np.linspace(0, np.pi, 20)
+        x = np.outer(np.cos(u), np.sin(v))
+        y = np.outer(np.sin(u), np.sin(v))
+        z = np.outer(np.ones(np.size(u)), np.cos(v))
+        ax.plot_surface(x, y, z, color='gray', alpha=0.1)
+        
+        # Calculate average misalignment for each agent
+        agent_misalignment = np.mean(self.misalignment_matrix, axis=1)
+        
+        # Create color map based on misalignment
+        cmap = plt.cm.plasma
+        norm = Normalize(vmin=0, vmax=max(agent_misalignment))
+        
+        # Plot preferences
+        for i in range(self.num_agents):
+            x = self.preferences[i, d1]
+            y = self.preferences[i, d2]
+            z = self.preferences[i, d3]
+            
+            # Size based on average trust received
+            avg_trust = np.mean(self.trust_weights[:, i])
+            size = 100 * avg_trust + 50
+            
+            # Color based on misalignment
+            scatter = ax.scatter(x, y, z, s=size, c=[agent_misalignment[i]], 
+                               cmap=cmap, norm=norm, label=f'Agent {i}')
+        
+        # Add colorbar
+        cbar = plt.colorbar(scatter, ax=ax, label='Average Misalignment')
+        
+        # Draw strong trust connections
+        for i in range(self.num_agents):
+            for j in range(self.num_agents):
+                if i != j and self.trust_weights[i, j] > 0.2:  # Only show stronger connections
+                    # Color based on misalignment
+                    misalign = self.misalignment_matrix[i, j]
+                    color = cmap(norm(misalign))
+                    
+                    # Width based on trust weight
+                    width = self.trust_weights[i, j] * 3
+                    
+                    ax.plot([self.preferences[i, d1], self.preferences[j, d1]],
+                           [self.preferences[i, d2], self.preferences[j, d2]],
+                           [self.preferences[i, d3], self.preferences[j, d3]],
+                           color=color, linewidth=width, alpha=0.6)
+        
+        ax.set_xlabel(f'Preference Dimension {d1}')
+        ax.set_ylabel(f'Preference Dimension {d2}')
+        ax.set_zlabel(f'Preference Dimension {d3}')
+        ax.set_title('Agent Preferences with Trust Connections')
+        
+        return plt
+    
+    def visualize_misalignment_network(self):
+        """
+        Visualize the network with misalignment highlighted.
+        
+        Returns:
