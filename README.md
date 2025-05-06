@@ -1,7 +1,7 @@
 # AART: AI Adversarial Research Toolkit
 
 
->**Note:** Due to proprietary collaboration protocols and active NDA agreements with institutional partners and Echelon Labs, full vector methodologies and red team toolkits are only available via private governance channels.
+>**Note:** Proprietary collaboration protocols and active NDA agreements with institutional partners and Echelon Labs have now ended. Full vector methodologies and red team toolkits are now available.
 >
 > **IMPORTANT**: This repository is intended for legitimate security research and AI safety advancement. All methodologies documented herein are for defensive research purposes only.
 <div align="center">
