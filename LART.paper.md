@@ -1,7 +1,6 @@
 # LART: A Comprehensive Framework for Adversarial LLM Security Assessment
 
 ## Abstract
-
 As large language models (LLMs) become increasingly embedded in critical infrastructure, the security implications of their vulnerabilities grow proportionately, presenting unprecedented risks to organizational integrity, regulatory compliance, and global security. This paper introduces the LLM Adversarial Research Toolkit (LART), a systematic framework for comprehensive security assessment, vulnerability discovery, and defense evaluation of LLM systems. LART implements a multi-dimensional approach to adversarial testing through: (1) a structured taxonomy of attack vectors spanning linguistic, contextual, systemic, functional, and multi-modal dimensions; (2) model-specific testing harnesses for leading LLMs including GPT-4/3.5, Claude 3, Gemini, Grok, and DeepSeek; (3) a quantitative Risk Assessment Matrix for Prompts (RAMP) that objectively measures vulnerability severity; and (4) standardized benchmarking protocols enabling consistent cross-model security comparison. Our evaluations demonstrate that LART's methodologies successfully identify critical vulnerabilities across all tested models, with an average 78% detection rate for previously undocumented attack vectors. We position LART as an essential component of robust AI governance frameworks, offering organizations a structured approach to security that aligns with emerging regulatory requirements and establishes the foundation for sustainable AI trust and safety programs.
 
 ## 1. Introduction
