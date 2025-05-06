@@ -1,0 +1,139 @@
+\section{Arbitration Reinforcement Model with Bayesian Interference Stabilization}
+
+\subsection{Core Model Definition}
+
+% Define the probabilistic tensor decision state
+\begin{align}
+\mathcal{T}_{ijk}(t) &\in \mathbb{C}^{n \times m \times h}
+\end{align}
+where $i \in \{1,\ldots,n\}$ indexes agents, $j \in \{1,\ldots,m\}$ indexes decision dimensions, and $k \in \{1,\ldots,h\}$ indexes hierarchy levels. The complex-valued nature captures both amplitude and phase information.
+
+% Define the interference tensor
+\begin{align}
+\mathcal{I}_{ij}(t) &= \sum_{k,l,p,q} \Phi_{ijklpq}(t) \cdot \mathcal{T}_{klp}(t) \cdot \overline{\mathcal{T}_{ijq}(t)}
+\end{align}
+where $\Phi_{ijklpq}(t)$ is the time-varying interference coupling tensor and the overbar denotes complex conjugation.
+
+% Define the compliance phase state
+\begin{align}
+\mathcal{C}_k(t) &= r_k(t) \cdot e^{i\theta_k(t)}
+\end{align}
+where $r_k(t)$ represents compliance magnitude and $\theta_k(t)$ represents compliance phase at hierarchy level $k$.
+
+\subsection{Bayesian Interference Stabilization Dynamics}
+
+% Define the prior distribution over tensor decision states
+\begin{align}
+p(\mathcal{T}(t) | \mathcal{D}_{t-1}) &= \int p(\mathcal{T}(t) | \mathcal{T}(t-\Delta t)) \cdot p(\mathcal{T}(t-\Delta t) | \mathcal{D}_{t-1}) \, d\mathcal{T}(t-\Delta t)
+\end{align}
+where $\mathcal{D}_{t-1}$ represents all observations up to time $t-1$.
+
+% Define the transition kernel with stabilization term
+\begin{align}
+p(\mathcal{T}(t) | \mathcal{T}(t-\Delta t)) &= \mathcal{N}(\mathcal{T}(t); \mathcal{F}(\mathcal{T}(t-\Delta t), \mathcal{I}(t-\Delta t)), \Sigma(t))
+\end{align}
+where:
+\begin{align}
+\mathcal{F}(\mathcal{T}, \mathcal{I}) &= \mathcal{T} + \Delta t \cdot \left[ \alpha \cdot \mathcal{G}(\mathcal{T}) + \beta \cdot \mathcal{S}(\mathcal{T}, \mathcal{I}) \right] \\
+\mathcal{G}(\mathcal{T}) &= \text{Autonomous dynamics term} \\
+\mathcal{S}(\mathcal{T}, \mathcal{I}) &= \text{Stabilization term}
+\end{align}
+
+% Define the stabilization term
+\begin{align}
+\mathcal{S}(\mathcal{T}, \mathcal{I})_{ijk} &= -\gamma \cdot \mathcal{T}_{ijk} \cdot \left( \sum_{l} |\mathcal{I}_{il}|^2 - \tau_{ij} \right) \cdot e^{i\phi_{ijk}(\mathcal{I})}
+\end{align}
+where $\gamma$ is the stabilization strength, $\tau_{ij}$ is the target interference level, and $\phi_{ijk}(\mathcal{I})$ is a phase adjustment function.
+
+% Define the phase adjustment function
+\begin{align}
+\phi_{ijk}(\mathcal{I}) &= \arg\left( \sum_{l} w_{ijkl} \cdot \mathcal{I}_{il} \right) - \arg(\mathcal{T}_{ijk})
+\end{align}
+where $w_{ijkl}$ are phase coupling weights.
+
+\subsection{Probabilistic Tensor Decision Modulation}
+
+% Define the likelihood function
+\begin{align}
+p(\mathbf{o}_t | \mathcal{T}(t)) &= \prod_{i=1}^{n_o} p(o_{i,t} | \mathcal{T}(t))
+\end{align}
+where $\mathbf{o}_t$ is the vector of observations at time $t$.
+
+% Define the posterior update
+\begin{align}
+p(\mathcal{T}(t) | \mathcal{D}_t) &= \frac{p(\mathbf{o}_t | \mathcal{T}(t)) \cdot p(\mathcal{T}(t) | \mathcal{D}_{t-1})}{p(\mathbf{o}_t | \mathcal{D}_{t-1})}
+\end{align}
+
+% Define the modulation operator
+\begin{align}
+\mathcal{M}[\mathcal{T}(t) | \mathcal{D}_t]_{ijk} &= \int \mathcal{T}_{ijk} \cdot p(\mathcal{T}(t) | \mathcal{D}_t) \, d\mathcal{T}
+\end{align}
+which extracts the expected tensor state given the posterior distribution.
+
+% Define the probabilistic update rule
+\begin{align}
+\hat{\mathcal{T}}(t) &= (1-\eta) \cdot \mathcal{T}(t) + \eta \cdot \mathcal{M}[\mathcal{T}(t) | \mathcal{D}_t]
+\end{align}
+where $\eta$ is the learning rate.
+
+\subsection{Compliance Phase-Locking Mechanism}
+
+% Define the compliance dynamics
+\begin{align}
+\frac{dr_k(t)}{dt} &= \alpha_r \cdot (r_k^* - r_k(t)) + \beta_r \cdot \mathcal{H}_r(\mathcal{T}(t), k) \\
+\frac{d\theta_k(t)}{dt} &= \omega_k + \alpha_{\theta} \cdot \mathcal{H}_{\theta}(\mathcal{T}(t), k) + \beta_{\theta} \cdot \sum_{l=1}^{h} \kappa_{kl} \cdot \sin(\theta_l(t) - \theta_k(t) - \delta_{kl})
+\end{align}
+where:
+\begin{itemize}
+\item $r_k^*$ is the target compliance magnitude
+\item $\omega_k$ is the natural frequency
+\item $\kappa_{kl}$ is the coupling strength between levels $k$ and $l$
+\item $\delta_{kl}$ is the phase offset
+\end{itemize}
+
+% Define the tensor-to-compliance mapping functions
+\begin{align}
+\mathcal{H}_r(\mathcal{T}, k) &= \left\| \frac{1}{n \cdot m} \sum_{i=1}^n \sum_{j=1}^m |\mathcal{T}_{ijk}|^2 \right\|^{1/2} \\
+\mathcal{H}_{\theta}(\mathcal{T}, k) &= \arg\left( \sum_{i=1}^n \sum_{j=1}^m \mathcal{T}_{ijk} \right)
+\end{align}
+
+\subsection{Reinforcement Learning Components}
+
+% Define the reward function
+\begin{align}
+\mathcal{R}(t) &= \sum_{k=1}^h w_k \cdot r_k(t) \cdot \cos(\theta_k(t) - \theta_k^*)
+\end{align}
+where $w_k$ are level weights and $\theta_k^*$ are target phases.
+
+% Define the policy update for interference coupling
+\begin{align}
+\frac{d\Phi_{ijklpq}(t)}{dt} &= \lambda \cdot \mathbb{E}_{\tau \sim [t-T, t]}\left[ \mathcal{R}(\tau) \cdot \frac{\partial \log p(\mathcal{T}(\tau) | \Phi)}{\partial \Phi_{ijklpq}} \right]
+\end{align}
+where $\lambda$ is the learning rate and the expectation is taken over a time window of length $T$.
+
+\subsection{Phase-Locking Analysis}
+
+% Define the phase coherence measure
+\begin{align}
+\psi_k(t) &= \left| \frac{1}{n \cdot m} \sum_{i=1}^n \sum_{j=1}^m e^{i\arg(\mathcal{T}_{ijk}(t))} \right|
+\end{align}
+where $\psi_k = 1$ indicates perfect phase coherence at level $k$ and $\psi_k = 0$ indicates complete phase disorder.
+
+% Define the inter-level phase locking condition
+\begin{align}
+\lim_{t \to \infty} |\theta_k(t) - \theta_l(t) - \delta_{kl}| < \epsilon \quad \forall k,l \in \{1,\ldots,h\}
+\end{align}
+where $\epsilon$ is a small constant.
+
+\subsection{Stability Analysis}
+
+% Define the Lyapunov function
+\begin{align}
+V(\mathcal{T}, \boldsymbol{\theta}) &= \sum_{i,j,k} |\mathcal{T}_{ijk}|^2 + \sum_{k=1}^h r_k^2 + \sum_{k,l} \kappa_{kl} \cdot (1 - \cos(\theta_l - \theta_k - \delta_{kl}))
+\end{align}
+
+% Define the stability condition
+\begin{align}
+\frac{dV(\mathcal{T}(t), \boldsymbol{\theta}(t))}{dt} < 0 \quad \forall t > T_0
+\end{align}
+for some finite time $T_0$.

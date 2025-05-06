@@ -1,0 +1,84 @@
+% Formalized Arbitration Reinforcement Function
+
+% Define the core arbitration reinforcement function ψ 
+\begin{align}
+\psi(\mathbf{s}, t) &= \int_{\Omega} \mathcal{K}(\mathbf{s}, \omega, t) \cdot \mathcal{C}(\omega, t) \, d\omega
+\end{align}
+
+% Where:
+% - $\mathbf{s}$ represents the system state vector
+% - $t$ is time
+% - $\Omega$ is the decision pathway space
+% - $\mathcal{K}$ is the coherence kernel
+% - $\mathcal{C}$ is the compliance field
+
+% Define the coherence kernel with limitation factor:
+\begin{align}
+\mathcal{K}(\mathbf{s}, \omega, t) &= \frac{\exp\left(-\frac{d(\mathbf{s}, \omega)^2}{2\sigma_t^2}\right)}{\mathcal{Z}(\mathbf{s}, t)} \cdot L(\mathbf{s}, \omega, t)
+\end{align}
+
+% Where:
+% - $d(\mathbf{s}, \omega)$ is a distance metric between state and pathway
+% - $\sigma_t$ is time-dependent uncertainty
+% - $\mathcal{Z}$ is a normalization factor
+% - $L$ is the coherence limitation function
+
+% Define the coherence limitation function:
+\begin{align}
+L(\mathbf{s}, \omega, t) &= \left(1 + \exp\left(\gamma \cdot \left(\int_{0}^{t} \mathcal{I}(\mathbf{s}_\tau, \omega) \, d\tau - \theta(\omega)\right)\right)\right)^{-1}
+\end{align}
+
+% Where:
+% - $\gamma$ controls limitation sharpness
+% - $\mathcal{I}$ is the interference function
+% - $\theta$ is the pathway-specific threshold
+% - $\mathbf{s}_\tau$ is the historical state at time $\tau$
+
+% Define the compliance field evolution:
+\begin{align}
+\frac{\partial \mathcal{C}(\omega, t)}{\partial t} &= \alpha \cdot \nabla_\omega^2 \mathcal{C}(\omega, t) + \beta \cdot \mathcal{R}(\omega, t) + \eta(\omega, t)
+\end{align}
+
+% Where:
+% - $\alpha$ is the diffusion coefficient
+% - $\nabla_\omega^2$ is the Laplacian operator in decision space
+% - $\beta$ is the reinforcement strength
+% - $\mathcal{R}$ is the reinforcement field
+% - $\eta$ is stochastic noise
+
+% Define the reinforcement field with recursive dynamics:
+\begin{align}
+\mathcal{R}(\omega, t) &= \int_0^t \kappa(t-\tau) \cdot \mathcal{F}\left(\int_{\mathcal{S}} \psi(\mathbf{s}, \tau) \cdot p(\mathbf{s}|\omega, \tau) \, d\mathbf{s}\right) \, d\tau
+\end{align}
+
+% Where:
+% - $\kappa$ is a temporal kernel capturing memory decay
+% - $\mathcal{F}$ is a non-linear activation function
+% - $p(\mathbf{s}|\omega, \tau)$ is the conditional probability of state given pathway
+% - $\mathcal{S}$ is the state space
+
+% Define the Bayesian update for pathway probability:
+\begin{align}
+p(\omega|\mathbf{s}, t) &= \frac{p(\mathbf{s}|\omega, t) \cdot p(\omega|t-\delta t)}{\int_{\Omega} p(\mathbf{s}|\omega', t) \cdot p(\omega'|t-\delta t) \, d\omega'}
+\end{align}
+
+% Where:
+% - $p(\omega|\mathbf{s}, t)$ is the posterior pathway probability
+% - $p(\mathbf{s}|\omega, t)$ is the likelihood
+% - $p(\omega|t-\delta t)$ is the prior
+
+% Define the interference function based on path history:
+\begin{align}
+\mathcal{I}(\mathbf{s}_t, \omega) &= \sum_{i=1}^{N} \sum_{j=1}^{N} \Phi_{ij}(\omega) \cdot \psi_i(\mathbf{s}_t, t) \cdot \psi_j(\mathbf{s}_{t-\delta}, t-\delta)
+\end{align}
+
+% Where:
+% - $\Phi_{ij}$ is the interference coupling matrix
+% - $\psi_i$ and $\psi_j$ are components of the arbitration function
+% - $N$ is the dimensionality of the arbitration function
+
+% Equilibrium condition:
+\begin{align}
+\mathcal{C}^*(\omega) &= \lim_{t \to \infty} \mathcal{C}(\omega, t) \\
+\textrm{such that } \frac{\partial \mathcal{C}^*(\omega)}{\partial t} &= 0 \quad \forall \omega \in \Omega
+\end{align}
