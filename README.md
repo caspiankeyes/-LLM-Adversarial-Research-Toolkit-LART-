@@ -1,5 +1,5 @@
 # AART: AI Adversarial Research Toolkit
-> ### AKA LART: LLM Adversarial Research Toolkit
+> AKA LART: LLM Adversarial Research Toolkit
 > > **Note:** Proprietary collaboration protocols and active NDA agreements with institutional partners and Echelon Labs have now ended.
 > > > Full vector methodologies and red team toolkits are now available.
 > > > > **IMPORTANT**: This repository is intended for legitimate security research and AI safety advancement. All methodologies documented herein are for ethical research purposes only.
